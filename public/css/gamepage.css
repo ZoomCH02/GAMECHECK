@@ -26,7 +26,7 @@
 }
 
 .addBut {
-  margin-left: 60px;
+  margin-left: 80px;
   padding: 14px 16px;
   margin-top: 10px;
   text-decoration: none;
@@ -36,11 +36,6 @@
 }
 
 .addBut:hover {
-  margin-left: 60px;
-  padding: 14px 16px;
-  margin-top: 10px;
-  text-decoration: none;
-  font-size: 17px;
   background-color: #00b673;
   color: white
 }

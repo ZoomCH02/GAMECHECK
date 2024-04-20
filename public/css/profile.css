@@ -76,6 +76,14 @@ span {
     color: #04AA6D;
 }
 
+.gamecard {
+    background-color: #3f3f3f;
+}
+
+.gamecard:hover {
+    box-shadow: 0px 8px 8px 6px #00b673
+}
+
 .game-card {
     background-color: #333;
     height: 400px;
@@ -102,10 +110,33 @@ span {
 }
 
 .game-title {
-    margin-left: 15px;
+    margin-left: 0px;
+    margin-top: 0px;
     color: white;
     margin-bottom: 500px;
     width: 400px;
+}
+
+.btnAddGame {
+    background-color: #04AA6D;
+    color: white;
+}
+
+.btnAddGame:hover {
+    background-color: #00b673;
+    color: white;
+}
+
+.data_p {
+    color: white;
+    width: 400px;
+    margin-top: -500px;
+}
+
+.modal-content {
+    background-color: #333;
+    /* Черный полупрозрачный цвет */
+    color: white;
 }
 
 label {
