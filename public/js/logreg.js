@@ -9,15 +9,15 @@ function log() {
     },
     body: JSON.stringify({ login, pass })
   })
-  .then(response => response.text())
-  .then(message => {
-    if(message === 'Вход выполнен успешно') {
-      window.location.replace('/profile.html');
-    } else {
-      alert(message);
-    }
-  })
-  .catch(error => alert(error));
+    .then(response => response.text())
+    .then(message => {
+      if (message === 'Вход выполнен успешно') {
+        window.location.replace('/profile.html');
+      } else {
+        alert(message);
+      }
+    })
+    .catch(error => alert(error));
 }
 
 function reg() {
@@ -31,13 +31,14 @@ function reg() {
     },
     body: JSON.stringify({ login, pass })
   })
-  .then(response => response.text())
-  .then(message => {
-    if(message === 'Пользователь успешно зарегистрирован') {
-      window.location.replace('/profile.html');
-    } else {
-      alert(message);
-    }
-  })
-  .catch(error => alert(error));
+    .then(response => response.text())
+    .then(message => {
+      if (message === 'Пользователь успешно зарегистрирован') {
+        window.location.replace('/profile.html');
+      } else {
+        alert(message);
+        window.location.replace('/profile.html');
+      }
+    })
+    .catch(error => alert(error));
 }

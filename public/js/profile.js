@@ -21,6 +21,8 @@ function createGameCard(game) {
                 <div class="card-body d-flex align-items-start">
                     <div class="col-md-2 mb-3">
                         <img src="${game.img}" class="game-image">
+                        <h1 class="game-title">${game.game_name}</h1>
+                        <p class="data_p">Дата прохождения: ${game.date_of_add}</p>
                     </div>
                     <div class="col-md-10 text-left card game-details">
                         <div class="form-group">
@@ -46,8 +48,7 @@ function createGameCard(game) {
                         <h2 class="total-rating">${game.rating}</h2>
                     </div>
                 </div>
-                <h1 class="game-title">${game.game_name}</h1>
-                <a align="right" class="btn delBut">Удалить</a>
+                <a align="right" onclick="deleteGame(${game.game_id})" class="btn delBut">Удалить</a>
                 <br>
             </div>
         </div>
@@ -103,6 +104,134 @@ function updateGameRating(gameId, ratings) {
         });
 }
 
+function FindOnPage() {
+    const input = inputField.value.trim();
+
+    if (input.length < 3) {
+        return;
+    }
+
+    fetch(`/games/${input}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const root = document.getElementById('modalBody');
+            root.innerHTML = '';
+            let rowHtml = '<div class="row justify-content-center align-items-stretch">';
+            data.forEach((item, index) => {
+                rowHtml += `
+                <div class="col-md-4 mb-1">
+                    <div align="center">
+                        <div class="card gamecard" style="background-color: #333; border-radius: 5%; height: 100%;">
+                            <a href="/gamePage.html?${item.id}">
+                                <div style="height: 200px;"> <!-- Убираем стиль overflow и оставляем фиксированную высоту -->
+                                    <br>
+                                    <img src="${item.img}" style="border-radius: 5%; height: 100%; width: auto;"></img> <!-- Добавляем стиль width: auto; для сохранения пропорций изображения -->
+                                </div>
+                            </a>
+                            <div class="card-body" style="margin-top: 15px">
+                                <h3 class="card-title" style="color: #e1e3e6;">${item.name}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+                if ((index + 1) % 3 === 0 || index === data.length - 1) {
+                    rowHtml += '</div><br>';
+                    root.innerHTML += rowHtml;
+                    rowHtml = '<div class="row justify-content-center align-items-stretch">';
+                }
+            });
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+
+
+}
+
+function deleteGame(gameId) {
+    fetch(`/user/games/${gameId}`, {
+        method: 'DELETE',
+        credentials: 'same-origin' // Для передачи куки с сессией
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при удалении игры');
+            }
+            return response.text();
+        })
+        .then(message => {
+            console.log(message); // Выводим сообщение об успешном удалении
+            window.location.reload()
+        })
+        .catch(error => {
+            console.error('Ошибка при удалении игры:', error);
+            // Здесь можно выполнить какие-то дополнительные действия в случае ошибки
+        });
+}
+
+function handleAvatarUpload() {
+    // Находим скрытый input для загрузки файла
+    const avatarInput = document.getElementById('avatarInput');
+
+    // Устанавливаем обработчик события изменения для input
+    avatarInput.addEventListener('change', function () {
+        // Получаем файл, выбранный пользователем
+        const file = this.files[0];
+
+        // Создаем объект FormData для отправки файла на сервер
+        const formData = new FormData();
+        formData.append('avatar', file); // Здесь 'avatar' - это имя, которое будет использоваться на сервере для получения файла
+
+        // Отправляем запрос POST на сервер с помощью fetch
+        fetch('/uploadAvatar', {
+            method: 'POST',
+            body: formData // Передаем объект FormData в теле запроса
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке файла');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Обработка успешной загрузки файла, если нужно
+                console.log('Файл успешно загружен:', data);
+                window.location.reload();
+            })
+            .catch(error => {
+                // Обработка ошибок загрузки файла
+                console.error('Ошибка при загрузке файла:', error);
+                window.location.reload();
+            });
+    });
+
+    // Вызываем событие клика на скрытом input для запуска процесса выбора файла
+    avatarInput.click();
+}
+
+
+
+
+// Получаем поле ввода
+const inputField = document.getElementById('input');
+
+// Добавляем обработчик события input
+inputField.addEventListener('input', function () {
+    const input = inputField.value.trim();
+    if (input.length >= 3) {
+        FindOnPage();
+    } else {
+        const root = document.getElementById('modalBody');
+        root.innerHTML = ''; // Очищаем содержимое корневого элемента
+    }
+});
+
 window.onload = function () {
     const rootElement = document.getElementById('root');
 
@@ -116,6 +245,8 @@ window.onload = function () {
         .then(data => {
             var gamesCount = document.getElementById('gamesCount')
             gamesCount.innerHTML = `Пройдено игр: ${data.length}`
+
+            data.reverse();
 
             data.forEach(game => {
                 rootElement.appendChild(createGameCard(game));
@@ -138,8 +269,25 @@ window.onload = function () {
 
             var userLogin = document.getElementById('userLogin')
             userLogin.innerText = data.login
+
+            var userAvatar = document.getElementById('userAvatar')
+            userAvatar.setAttribute('src', `uploads/${data.avatar}`)
         })
         .catch(error => {
             console.error('Ошибка:', error.message);
         });
 };
+
+
+
+var myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {
+    keyboard: false
+});
+
+document.getElementById('openModalBtn').addEventListener('click', function () {
+    myModal.show();
+});
+
+document.querySelector('.modal-footer .btn-secondary').addEventListener('click', function () {
+    myModal.hide();
+});
