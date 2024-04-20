@@ -1,0 +1,148 @@
+.newGameBut {
+    padding: 14px 16px;
+    margin-top: 10px;
+    text-decoration: none;
+    font-size: 17px;
+    background-color: #04AA6D;
+    color: white
+}
+
+.newGameBut:hover {
+    padding: 14px 16px;
+    margin-top: 10px;
+    text-decoration: none;
+    font-size: 17px;
+    background-color: #00b673;
+    color: white
+}
+
+.delBut {
+    padding: 7px 7px;
+    margin-top: -535px;
+    margin-right: 15px;
+    text-decoration: none;
+    font-size: 17px;
+    background-color: #04AA6D;
+    color: white;
+    width: 150px;
+    align-self: self-end;
+}
+
+.delBut:hover {
+    background-color: #b90900;
+    color: white;
+}
+
+input[type="range"] {
+    /* Для Webkit (Chrome, Safari, Opera) */
+    -webkit-appearance: none;
+    /* Для Firefox */
+    appearance: none;
+    max-width: 200px;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    background: #ddd;
+    outline: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    /* Для Webkit (Chrome, Safari, Opera) */
+    -webkit-appearance: none;
+    /* Цвет бегунка */
+    background: #04AA6D;
+    /* Размер бегунка */
+    width: 20px;
+    height: 20px;
+    /* Форма бегунка */
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    /* Для Firefox */
+    background: #04AA6D;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+span {
+    font-size: 20px;
+    color: #04AA6D;
+}
+
+.gamecard {
+    background-color: #3f3f3f;
+}
+
+.gamecard:hover {
+    box-shadow: 0px 8px 8px 6px #00b673
+}
+
+.game-card {
+    background-color: #333;
+    height: 400px;
+}
+
+.game-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 20px;
+}
+
+.game-details {
+    padding: 10px;
+    margin-left: 275px;
+    background-color: #4d4d4d;
+    width: 400px;
+}
+
+.divider {
+    color: white;
+    height: 5px;
+    background-color: white;
+    border-radius: 20px;
+}
+
+.game-title {
+    margin-left: 0px;
+    margin-top: 0px;
+    color: white;
+    margin-bottom: 500px;
+    width: 400px;
+}
+
+.btnAddGame {
+    background-color: #04AA6D;
+    color: white;
+}
+
+.btnAddGame:hover {
+    background-color: #00b673;
+    color: white;
+}
+
+.data_p {
+    color: white;
+    width: 400px;
+    margin-top: -500px;
+}
+
+.modal-content {
+    background-color: #333;
+    /* Черный полупрозрачный цвет */
+    color: white;
+}
+
+label {
+    color: white;
+}
+
+h2 {
+    color: white;
+}
