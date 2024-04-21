@@ -70,7 +70,28 @@ app.post('/uploadAvatar', upload.single('avatar'), (req, res) => {
   });
 });
 
+app.put('/playthrough/:playthroughId/updateDate', (req, res) => {
+  const playthroughId = req.params.playthroughId;
+  const newDate = req.body.date_of_add;
+  const user_id = req.session.user.id;
 
+  console.log('playthroughId:', playthroughId);
+  console.log('newDate:', newDate);
+  console.log('user_id:', user_id);
+  
+  db.run(
+      'UPDATE Playthroughs SET date_of_add = ? WHERE game_id = ? AND user_id=?',
+      [newDate, playthroughId, user_id],
+      (err) => {
+          if (err) {
+              console.error('Ошибка SQL:', err.message);
+              return res.status(500).send('Ошибка SQL: ' + err.message);
+          }
+          res.status(200).send('Дата прохождения игры успешно обновлена');
+      }
+  );
+  
+});
 
 
 app.post('/registerUser', (req, res) => {
@@ -82,16 +103,20 @@ app.post('/registerUser', (req, res) => {
     if (row) {
       return res.status(400).send('Пользователь уже существует');
     }
-    db.run('INSERT INTO Users (login, pass) VALUES (?, ?)', [login, pass], (err) => {
+    db.run('INSERT INTO Users (login, pass, avatar) VALUES (?, ?, ?)', [login, pass, 'avatar.png'], function(err) {
       if (err) {
         return res.status(500).send('Ошибка при добавлении пользователя');
       }
-      // После успешной регистрации входим в учетную запись пользователя
-      req.session.user = { login }; // Сохраняем имя пользователя в сессии
+      const userId = this.lastID; // Получаем идентификатор последней вставленной записи
+      req.session.user = {
+        id: userId,
+        login: login
+      };
       res.status(200).send('Пользователь успешно зарегистрирован и вошел в аккаунт');
     });
   });
 });
+
 
 app.post('/loginUser', (req, res) => {
   const { login, pass } = req.body;
@@ -197,11 +222,18 @@ app.get('/user', (req, res) => {
       if (err) {
         console.log(err)
       }
-      else {
+      else if(row[0]){
         res.status(200).json({
           id: req.session.user.id,
           login: req.session.user.login,
           avatar: row[0].avatar
+        });
+      }
+      else {
+        res.status(200).json({
+          id: req.session.user.id,
+          login: req.session.user.login,
+          avatar: 'avatar.png'
         });
       }
     })
