@@ -16,13 +16,13 @@ function createGameCard(game) {
     const cardDiv = document.createElement('div');
     cardDiv.classList.add('row');
     cardDiv.innerHTML = `
-        <div class="col-md-12">
+    <div class="col-md-12">
             <div class="card mb-3 game-card" data-game="${game.game_name}" data-game-id="${game.game_id}">
                 <div class="card-body d-flex align-items-start">
                     <div class="col-md-2 mb-3">
                         <img src="${game.img}" class="game-image">
                         <h1 class="game-title">${game.game_name}</h1>
-                        <p class="data_p">Дата прохождения: ${game.date_of_add}</p>
+                        <p class="data_p">Дата прохождения: <span class="dateSpan">${game.date_of_add}</span> <img width="15px" style="margin-left: 5px; margin-bottom: 5px" src="/assets/edit.png" onclick="toggleDateEdit(this)"></p>
                     </div>
                     <div class="col-md-10 text-left card game-details">
                         <div class="form-group">
@@ -72,6 +72,66 @@ function createGameCard(game) {
         });
     });
     return cardDiv;
+}
+
+function toggleDateEdit(imgElement) {
+    const dateSpan = imgElement.previousElementSibling;
+    const dateValue = dateSpan.textContent;
+    if (dateSpan.tagName === 'SPAN') {
+        // Скрываем кнопку изменения
+        imgElement.style.display = 'none';
+
+        const input = document.createElement('input');
+        input.type = 'date';
+        // Преобразуем значение даты в формат yyyy-mm-dd для input
+        const dateParts = dateValue.split('.');
+        const isoDate = dateParts[2] + '-' + dateParts[1].padStart(2, '0') + '-' + dateParts[0].padStart(2, '0');
+        input.value = isoDate;
+        input.classList.add('dateInput');
+
+        const applyButton = document.createElement('button');
+        applyButton.textContent = 'Применить';
+        applyButton.classList.add('applyButton');
+        applyButton.onclick = function () {
+            const newDate = input.value;
+            // Преобразуем значение даты в строку с форматом dd.mm.yyyy
+            const parts = newDate.split('-');
+            const formattedDate = parts[2] + '.' + parts[1] + '.' + parts[0];
+
+            // Выполняем fetch запрос на сервер для обновления даты
+            const playthroughId = imgElement.closest('.game-card').getAttribute('data-game-id');
+            fetch(`/playthrough/${playthroughId}/updateDate`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ date_of_add: formattedDate })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка при обновлении даты прохождения игры');
+                    }
+                    window.location.reload()
+                })
+                .catch(error => {
+                    console.error('Ошибка при обновлении даты прохождения игры:', error);
+                });
+        };
+
+        dateSpan.parentNode.insertBefore(input, imgElement);
+        dateSpan.parentNode.insertBefore(applyButton, imgElement);
+        input.focus();
+    } else {
+        const span = document.createElement('span');
+        span.textContent = dateValue;
+        dateSpan.parentNode.replaceChild(span, dateSpan);
+        const applyButton = document.querySelector('.applyButton');
+        if (applyButton) {
+            applyButton.remove();
+        }
+        // Показываем кнопку изменения после возвращения к текстовому формату
+        imgElement.style.display = 'inline';
+    }
 }
 
 function updateGameRating(gameId, ratings) {
@@ -216,8 +276,6 @@ function handleAvatarUpload() {
 }
 
 
-
-
 // Получаем поле ввода
 const inputField = document.getElementById('input');
 
@@ -243,10 +301,17 @@ window.onload = function () {
             return response.json();
         })
         .then(data => {
-            var gamesCount = document.getElementById('gamesCount')
-            gamesCount.innerHTML = `Пройдено игр: ${data.length}`
+            // Преобразуем формат даты dd.mm.yyyy в объекты Date для сортировки
+            data.forEach(game => {
+                const dateParts = game.date_of_add.split('.');
+                game.dateObject = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+            });
 
-            data.reverse();
+            // Сортируем список игр по объектам Date
+            data.sort((a, b) => b.dateObject - a.dateObject);
+
+            var gamesCount = document.getElementById('gamesCount');
+            gamesCount.innerHTML = `Пройдено игр: ${data.length}`;
 
             data.forEach(game => {
                 rootElement.appendChild(createGameCard(game));
@@ -267,17 +332,16 @@ window.onload = function () {
             console.log('ID пользователя:', data.id);
             console.log('Логин пользователя:', data.login);
 
-            var userLogin = document.getElementById('userLogin')
-            userLogin.innerText = data.login
+            var userLogin = document.getElementById('userLogin');
+            userLogin.innerText = data.login;
 
-            var userAvatar = document.getElementById('userAvatar')
-            userAvatar.setAttribute('src', `uploads/${data.avatar}`)
+            var userAvatar = document.getElementById('userAvatar');
+            userAvatar.setAttribute('src', `uploads/${data.avatar}`);
         })
         .catch(error => {
             console.error('Ошибка:', error.message);
         });
 };
-
 
 
 var myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {
